@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>ID Card Generator — 56x88 mm</title>
+
+<!-- QRCode.js & html2canvas dari CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<style>
+  :root{
+    --card-w:56mm;
+    --card-h:88mm;
+  }
+  body{
+    font-family: Arial, Helvetica, sans-serif;
+    margin:16px;
+    display:flex;
+    gap:20px;
+    align-items:flex-start;
+    background:#f3f4f6;
+    color:#222;
+  }
+
+  /* panel form */
+  .controls{
+    width:360px;
+    max-width:40vw;
+    background:white;
+    padding:16px;
+    border-radius:8px;
+    box-shadow:0 4px 12px rgba(0,0,0,0.08);
+  }
+  .controls h2{margin:0 0 12px 0;font-size:18px}
+  .controls label{display:block;margin-top:8px;font-size:13px;color:#333}
+  .controls input[type="text"], .controls input[type="date"], .controls select{
+    width:100%; padding:8px 10px; margin-top:6px; box-sizing:border-box;
+    border:1px solid #d1d5db; border-radius:4px;
+  }
+  .controls input[type="file"]{margin-top:6px}
+  .controls button{margin-top:12px;padding:10px 12px;border:0;background:#1f6feb;color:white;border-radius:6px;cursor:pointer}
+
+  /* preview area */
+  .preview-wrap{
+    background: #fff;
+    padding:12px;
+    border-radius:10px;
+    box-shadow:0 6px 18px rgba(0,0,0,0.08);
+  }
+
+  /* the card itself sized in mm */
+  .id-card{
+    width:var(--card-w);
+    height:var(--card-h);
+    position:relative;
+    background: linear-gradient(180deg,#ffffff 0%, #ffffff 76%, #1f3b8f 76%);
+    border-radius:4mm;
+    box-shadow:0 8px 24px rgba(0,0,0,0.12);
+    padding:6mm;
+    box-sizing:border-box;
+    color:#111;
+    font-size:10pt;
+    overflow:hidden;
+  }
+
+  /* layout inside card */
+  .logo{position:absolute; left:6mm; top:4mm; width:12mm; height:12mm; display:flex;align-items:center;justify-content:center}
+  .title{position:absolute; left:20mm; top:4mm; font-weight:700; font-size:11pt}
+  .photo{
+    position:absolute;
+    right:6mm;
+    top:8mm;
+    width:22mm;
+    height:30mm;
+    background:#eee;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+  }
+  .photo img{width:100%; height:100%; object-fit:cover; display:block}
+
+  .left-column{
+    position:absolute;
+    left:6mm;
+    top:20mm;
+    width:28mm;
+  }
+  .qr{
+    width:24mm;
+    height:24mm;
+    background:white;
+    padding:3px;
+    box-sizing:border-box;
+  }
+
+  .right-column{
+    position:absolute;
+    left:36mm;
+    top:20mm;
+    right:6mm;
+    font-size:9.5pt;
+  }
+
+  .field{
+    margin-bottom:4px;
+    line-height:1.1;
+  }
+  .label-small{font-size:7.5pt;color:#444}
+  .value{font-weight:600;margin-top:2px}
+
+  /* print tweaks */
+  @media print{
+    body{background:transparent}
+    .controls, .preview-wrap{box-shadow:none}
+    .id-card{box-shadow:none}
+  }
+
+  /* small helper */
+  .muted{color:#666;font-size:12px}
+</style>
+</head>
+<body>
+
+  <div class="controls">
+    <h2>Editor ID Card</h2>
+
+    <label>NIM (juga jadi data QR)</label>
+    <input id="inp-nim" type="text" value="056130911" />
+
+    <label>Nama</label>
+    <input id="inp-nama" type="text" value="CASTO" />
+
+    <label>Jurusan / Program Studi</label>
+    <input id="inp-jurusan" type="text" value="252 / SISTEM INFORMASI S1" />
+
+    <label>Tanggal Lahir</label>
+    <input id="inp-dob" type="text" value="25/01/2000" />
+
+    <label>UPBJJ</label>
+    <input id="inp-upbjj" type="text" value="41 / PURWOKERTO" />
+
+    <label>MRI</label>
+    <input id="inp-mri" type="text" value="20182" />
+
+    <label>Berlaku sampai</label>
+    <input id="inp-berlaku" type="text" value="24-06-2025" />
+
+    <label>Foto (upload)</label>
+    <input id="inp-photo" type="file" accept="image/*" />
+
+    <div style="display:flex;gap:8px;">
+      <button id="btn-update">Update Preview</button>
+      <button id="btn-download">Download PNG</button>
+    </div>
+
+    <p class="muted">Tips: setelah di-download, buka file PNG lalu cetak dengan ukuran asli 56 × 88 mm (pastikan scale 100% / actual size saat print)</p>
+  </div>
+
+  <div class="preview-wrap">
+    <div id="card" class="id-card" >
+      <!-- logo -->
+      <div class="logo">
+        <!-- simple placeholder logo -->
+        <svg width="100%" height="100%" viewBox="0 0 64 64">
+          <circle cx="32" cy="20" r="12" fill="#1f3b8f"/>
+          <rect x="12" y="36" width="40" height="8" rx="3" fill="#f6c84c"/>
+        </svg>
+      </div>
+
+      <div class="title">KARTU MAHASISWA</div>
+
+      <div class="photo" id="photoBox">
+        <!-- default blank -->
+        <img id="photoImg" src="" alt="Foto" />
+      </div>
+
+      <div class="left-column">
+        <div class="qr" id="qrContainer"></div>
+      </div>
+
+      <div class="right-column">
+        <div class="field"><div class="label-small">NIM</div><div class="value" id="v-nim">056130911</div></div>
+        <div class="field"><div class="label-small">Nama</div><div class="value" id="v-nama">CASTO</div></div>
+        <div class="field"><div class="label-small">Jurusan</div><div class="value" id="v-jurusan">252 / SISTEM INFORMASI S1</div></div>
+        <div class="field"><div class="label-small">Tanggal Lahir</div><div class="value" id="v-dob">25/01/2000</div></div>
+        <div class="field"><div class="label-small">UPBJJ</div><div class="value" id="v-upbjj">41 / PURWOKERTO</div></div>
+        <div class="field"><div class="label-small">MRI</div><div class="value" id="v-mri">20182</div></div>
+        <div class="field"><div class="label-small">Berlaku</div><div class="value" id="v-berlaku">24-06-2025</div></div>
+      </div>
+    </div>
+    <p style="text-align:center;margin-top:10px;font-size:12px;color:#666">Preview (ukuran asli terlihat di layar jika DPI display mendukung)</p>
+  </div>
+
+<script>
+  // references
+  const inpNim = document.getElementById('inp-nim');
+  const inpNama = document.getElementById('inp-nama');
+  const inpJur = document.getElementById('inp-jurusan');
+  const inpDob = document.getElementById('inp-dob');
+  const inpUpbjj = document.getElementById('inp-upbjj');
+  const inpMri = document.getElementById('inp-mri');
+  const inpBerlaku = document.getElementById('inp-berlaku');
+  const inpPhoto = document.getElementById('inp-photo');
+
+  const vNim = document.getElementById('v-nim');
+  const vNama = document.getElementById('v-nama');
+  const vJur = document.getElementById('v-jurusan');
+  const vDob = document.getElementById('v-dob');
+  const vUpbjj = document.getElementById('v-upbjj');
+  const vMri = document.getElementById('v-mri');
+  const vBerlaku = document.getElementById('v-berlaku');
+  const photoImg = document.getElementById('photoImg');
+  const qrContainer = document.getElementById('qrContainer');
+
+  // initial QR
+  let qr;
+
+  function generateQR(text){
+    // clear
+    qrContainer.innerHTML = '';
+    qr = new QRCode(qrContainer, {
+      text: text || '',
+      width: qrContainer.clientWidth,
+      height: qrContainer.clientHeight,
+      colorDark : "#000000",
+      colorLight : "#ffffff",
+      correctLevel : QRCode.CorrectLevel.M
+    });
+  }
+
+  // load default placeholder photo (optional)
+  photoImg.src = ''; // blank by default
+
+  // handle photo upload
+  inpPhoto.addEventListener('change', (e)=>{
+    const f = e.target.files && e.target.files[0];
+    if(!f) return;
+    const reader = new FileReader();
+    reader.onload = function(ev){
+      photoImg.src = ev.target.result;
+    }
+    reader.readAsDataURL(f);
+  });
+
+  function updatePreview(){
+    vNim.textContent = inpNim.value || '-';
+    vNama.textContent = inpNama.value || '-';
+    vJur.textContent = inpJur.value || '-';
+    vDob.textContent = inpDob.value || '-';
+    vUpbjj.textContent = inpUpbjj.value || '-';
+    vMri.textContent = inpMri.value || '-';
+    vBerlaku.textContent = inpBerlaku.value || '-';
+
+    // generate QR from NIM (or full info if you prefer)
+    const qrText = inpNim.value || (inpNama.value || '');
+    generateQR(qrText);
+  }
+
+  document.getElementById('btn-update').addEventListener('click', updatePreview);
+
+  // initial generate
+  generateQR(inpNim.value);
+  updatePreview();
+
+  // download PNG using html2canvas
+  document.getElementById('btn-download').addEventListener('click', async ()=>{
+    const cardEl = document.getElementById('card');
+
+    // calculate scale for higher resolution. For print-quality ~300 DPI:
+    // convert mm to pixels at 300 DPI --> px = mm * (300 / 25.4)
+    const dpi = 300;
+    const mmToPx = mm => Math.round(mm * (dpi / 25.4));
+    const w = mmToPx(56);
+    const h = mmToPx(88);
+
+    // Use html2canvas with custom scale so exported image is w x h px (approximately)
+    const bounding = cardEl.getBoundingClientRect();
+    const scale = Math.min(w / bounding.width, h / bounding.height);
+
+    const canvas = await html2canvas(cardEl, {
+      backgroundColor: null,
+      scale: scale,
+      useCORS: true,
+      allowTaint: true,
+      logging:false
+    });
+
+    // ensure final canvas matches target dims (may be approximate)
+    const finalCanvas = document.createElement('canvas');
+    finalCanvas.width = Math.round(w);
+    finalCanvas.height = Math.round(h);
+    const ctx = finalCanvas.getContext('2d');
+
+    // draw centered
+    ctx.fillStyle = "#fff";
+    ctx.fillRect(0,0,finalCanvas.width, finalCanvas.height);
+    // scale drawing to fit
+    ctx.drawImage(canvas, 0, 0, finalCanvas.width, finalCanvas.height);
+
+    // download
+    const dataUrl = finalCanvas.toDataURL('image/png', 1.0);
+    const a = document.createElement('a');
+    a.href = dataUrl;
+    a.download = (inpNim.value ? inpNim.value + '_' : '') + 'idcard.png';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  });
+
+  // update preview live as user types (optional)
+  [inpNim, inpNama, inpJur, inpDob, inpUpbjj, inpMri, inpBerlaku].forEach(el=>{
+    el.addEventListener('input', () => {
+      // small debounce for performance
+      clearTimeout(el._t);
+      el._t = setTimeout(updatePreview, 150);
+    });
+  });
+</script>
+
+</body>
+</html>
