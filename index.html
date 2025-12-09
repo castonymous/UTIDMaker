@@ -13,72 +13,123 @@
 
 <style>
   :root{
-    --card-w-mm:88;
+    --card-w: 320px;   /* preview size, stabil di mobile */
+    --card-h: 204px;
+    --card-w-mm:88;    /* untuk hitung PNG 300dpi */
     --card-h-mm:56;
+    --glass-bg: rgba(255,255,255,0.38);
+    --glass-border: rgba(255,255,255,0.65);
+    --panel-bg: rgba(255,255,255,0.55);
+    --panel-border: rgba(255,255,255,0.6);
+    --shadow-strong: 0 12px 30px rgba(0,0,0,0.14);
+    --shadow-soft: 0 18px 40px rgba(0,0,0,0.18);
+    --accent: #0A84FF;
   }
 
+  *{box-sizing:border-box;}
   body{
     margin:20px;
     font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto;
-    background:#e5e7eb;
+    background:linear-gradient(135deg,#dfe7ff,#e9f5ff 35%,#f6f6f8);
     display:flex;
     gap:20px;
     flex-wrap:wrap;
+    color:#111;
+    align-items:flex-start;
+    justify-content:center;
   }
 
   /* PANEL INPUT */
   .panel{
     width:360px;
-    background:rgba(255,255,255,0.55);
+    background:var(--panel-bg);
     backdrop-filter:blur(22px) saturate(180%);
     border-radius:18px;
     padding:18px;
-    border:1px solid rgba(255,255,255,0.5);
-    box-shadow:0 12px 30px rgba(0,0,0,0.15);
+    border:1px solid var(--panel-border);
+    box-shadow:var(--shadow-soft);
+    order:1;
   }
 
-  label{display:block;margin-top:12px;font-size:13px}
-  input{width:100%;padding:8px;margin-top:6px;border-radius:10px;border:1px solid #ccc}
+  label{display:block;margin-top:12px;font-size:13px;font-weight:600}
+  input, textarea{
+    width:100%;
+    padding:10px 12px;
+    margin-top:6px;
+    border-radius:12px;
+    border:1px solid #cfd6e4;
+    background:rgba(255,255,255,0.8);
+    font-size:14px;
+    transition:box-shadow .2s,border-color .2s;
+  }
+  input:focus, textarea:focus{
+    outline:none;
+    border-color:var(--accent);
+    box-shadow:0 0 0 3px rgba(10,132,255,0.18);
+  }
 
   button{
     margin-top:14px;
-    padding:10px 16px;
+    padding:11px 16px;
     border:0;
     border-radius:12px;
-    background:#0A84FF;
+    background:var(--accent);
     color:white;
     cursor:pointer;
     font-size:14px;
-    box-shadow:0 6px 18px rgba(10,132,255,0.4);
+    font-weight:600;
+    box-shadow:0 8px 22px rgba(10,132,255,0.35);
+    transition:transform .12s ease, box-shadow .12s ease;
   }
+  button:hover{transform:translateY(-1px);box-shadow:0 10px 26px rgba(10,132,255,0.4);}
+  button:active{transform:translateY(0);}
+
+  .hint{font-size:12px;color:#555;margin-top:4px;}
 
   /* PREVIEW AREA */
   .preview-wrap{
-    padding:12px;
-    background:rgba(255,255,255,0.3);
-    backdrop-filter:blur(20px);
+    padding:14px;
+    background:var(--glass-bg);
+    backdrop-filter:blur(24px) saturate(200%);
     border-radius:18px;
-    border:1px solid rgba(255,255,255,0.5);
-    box-shadow:0 12px 32px rgba(0,0,0,0.15);
+    border:1px solid var(--glass-border);
+    box-shadow:var(--shadow-soft);
+    display:flex;
+    justify-content:center;
+    width:420px;
+    max-width:96vw;
+    order:2;
   }
 
-  /* LANDSCAPE CARD 88×56 mm */
+  /* LANDSCAPE CARD */
   .id-card{
-    width: calc(var(--card-w-mm) * 0.264583mm);
-    height: calc(var(--card-h-mm) * 0.264583mm);
-
-    background:rgba(255,255,255,0.25);
+    width: var(--card-w);
+    height: var(--card-h);
+    background:linear-gradient(145deg, rgba(255,255,255,0.48), rgba(255,255,255,0.2));
     backdrop-filter:blur(20px) saturate(180%);
-    border-radius:14px;
-    border:1px solid rgba(255,255,255,0.6);
+    border-radius:16px;
+    border:1px solid rgba(255,255,255,0.65);
     box-shadow:
-      inset 0 0 0 1px rgba(255,255,255,0.4),
-      0 12px 30px rgba(0,0,0,0.14);
-
+      inset 0 0 0 1px rgba(255,255,255,0.35),
+      var(--shadow-strong);
     position:relative;
     overflow:hidden;
     padding:8mm;
     box-sizing:border-box;
+  }
+
+  /* Decorative light streak */
+  .id-card::before{
+    content:"";
+    position:absolute;
+    width:120%;
+    height:120%;
+    top:-30%;
+    left:-20%;
+    background:radial-gradient(ellipse at top left, rgba(255,255,255,0.42), transparent 50%),
+               radial-gradient(ellipse at bottom right, rgba(10,132,255,0.12), transparent 45%);
+    transform:rotate(-4deg);
+    pointer-events:none;
   }
 
   /* ELEMENTS */
@@ -86,13 +137,15 @@
     width:12mm;
     position:absolute;
     left:8mm; top:6mm;
+    filter:drop-shadow(0 2px 4px rgba(0,0,0,0.15));
   }
 
   .title{
     position:absolute;
     top:7mm; left:23mm;
-    font-weight:600;
-    font-size:10.5pt;
+    font-weight:700;
+    font-size:11pt;
+    letter-spacing:0.4px;
   }
 
   .photo{
@@ -101,8 +154,9 @@
     width:20mm; height:26mm;
     border-radius:8px;
     overflow:hidden;
-    background:rgba(255,255,255,0.3);
-    box-shadow:0 6px 18px rgba(0,0,0,0.15);
+    background:rgba(255,255,255,0.45);
+    box-shadow:0 8px 22px rgba(0,0,0,0.2);
+    border:1px solid rgba(255,255,255,0.6);
   }
   .photo img{width:100%;height:100%;object-fit:cover}
 
@@ -110,35 +164,42 @@
     position:absolute;
     left:8mm; top:20mm;
     width:20mm; height:20mm;
+    background:rgba(255,255,255,0.35);
+    border-radius:6px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
   }
+  .qrbox canvas{width:100% !important; height:100% !important;}
 
   .info{
     position:absolute;
     left:30mm; top:20mm;
     font-size:8.5pt;
+    color:#1a1a1a;
   }
 
   .field{margin-bottom:2px}
-  .label{font-size:7pt;color:#666}
-  .value{font-weight:600}
+  .label{font-size:7pt;color:#555}
+  .value{font-weight:700}
 
-  /* RESPONSIVE: MOBILE → stack vertically */
+  /* Responsive: mobile stack */
   @media (max-width:768px){
     body{
       flex-direction:column;
       align-items:center;
     }
     .panel{
-      width:90%;
+      width:94%;
+      order:1;
     }
     .preview-wrap{
-      margin-top:20px;
-      width:95%;
-      display:flex;
-      justify-content:center;
+      margin-top:14px;
+      width:96%;
+      order:2;
     }
   }
-
 </style>
 </head>
 <body>
@@ -165,9 +226,16 @@
 
   <label>Foto</label>
   <input id="foto" type="file" accept="image/*">
+  <div class="hint">Pilih foto 3x4 (portrait). JPG/PNG.</div>
 
   <button id="update">Update Preview</button>
   <button id="download">Download PNG Landscape</button>
+
+  <hr style="margin:18px 0;border:0;border-top:1px solid rgba(0,0,0,0.06)">
+  <h4>Batch dari CSV</h4>
+  <input type="file" id="csv" accept=".csv">
+  <div class="hint">Header: nim,nama,jurusan,dob,upbjj,mri,berlaku,qrlink,fotoDataUrl(optional)</div>
+  <button id="batch">Generate ZIP PNG</button>
 </div>
 
 <!-- PREVIEW -->
@@ -175,11 +243,12 @@
   <div id="card" class="id-card">
 
     <img class="logo"
-      src="https://upload.wikimedia.org/wikipedia/commons/5/5f/Universitas_Terbuka_%28UT%29_logo.svg">
+      src="https://upload.wikimedia.org/wikipedia/commons/5/5f/Universitas_Terbuka_%28UT%29_logo.svg"
+      alt="Logo UT">
 
     <div class="title">KARTU MAHASISWA</div>
 
-    <div class="photo"><img id="imgFoto"></div>
+    <div class="photo"><img id="imgFoto" alt="Foto"></div>
 
     <div class="qrbox" id="qr"></div>
 
@@ -197,69 +266,108 @@
 </div>
 
 <script>
+const g = id => document.getElementById(id);
+const fields = ["nim","nama","jurusan","dob","upbjj","mri","berlaku","qrlink"];
+const fallbackPhoto = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAKxJREFUeNrs0rENgDAMQ9H//8uqoS0JBHhK2vWdjOS4PSJVpazBAYJCAgICAgICAgICAvwFVLtZL1NVr7DiIP9N6AAi/CYQgQYKBCBAgQIAAAQIECBAgQIAAAQIECBAgQOCnQM2vHGWk+y3OCAXoBx7E9kq+VJWlsYAAAAAElFTkSuQmCC";
 
-// UPDATE CARD
-function updateCard() {
-  const g = id => document.getElementById(id).value;
+function updateCard(dataOverrides={}){
+  const val = k => dataOverrides[k] ?? g(k).value;
 
-  document.getElementById("v-nim").textContent = g("nim");
-  document.getElementById("v-nama").textContent = g("nama");
-  document.getElementById("v-jurusan").textContent = g("jurusan");
-  document.getElementById("v-dob").textContent = g("dob");
-  document.getElementById("v-upbjj").textContent = g("upbjj");
-  document.getElementById("v-mri").textContent = g("mri");
-  document.getElementById("v-berlaku").textContent = g("berlaku");
+  g("v-nim").textContent      = val("nim");
+  g("v-nama").textContent     = val("nama");
+  g("v-jurusan").textContent  = val("jurusan");
+  g("v-dob").textContent      = val("dob");
+  g("v-upbjj").textContent    = val("upbjj");
+  g("v-mri").textContent      = val("mri");
+  g("v-berlaku").textContent  = val("berlaku");
 
   // QR
-  document.getElementById("qr").innerHTML = "";
-  new QRCode(document.getElementById("qr"), {
-    text: g("qrlink"),
+  g("qr").innerHTML = "";
+  new QRCode(g("qr"), {
+    text: val("qrlink") || "",
     width: 120,
     height: 120
   });
 }
 
 updateCard();
+g("imgFoto").src = fallbackPhoto;
 
 // FOTO
-document.getElementById("foto").onchange = e=>{
+g("foto").onchange = e=>{
   const f = e.target.files[0];
   if(!f) return;
   const r = new FileReader();
-  r.onload = ev => document.getElementById("imgFoto").src = ev.target.result;
+  r.onload = ev => g("imgFoto").src = ev.target.result;
   r.readAsDataURL(f);
 };
 
-document.getElementById("update").onclick = updateCard;
-
+g("update").onclick = ()=>updateCard();
 
 // DOWNLOAD LANDSCAPE PNG
-document.getElementById("download").onclick = async ()=>{
-  const card = document.getElementById("card");
-
+async function renderCardToCanvas(target){
   const dpi = 300;
   const pxW = Math.round(88 * dpi / 25.4);
   const pxH = Math.round(56 * dpi / 25.4);
 
-  const rect = card.getBoundingClientRect();
+  const rect = target.getBoundingClientRect();
   const scale = pxH / rect.height;
 
-  const canvas = await html2canvas(card,{
+  const canvas = await html2canvas(target,{
     scale:scale,
     backgroundColor:null
   });
 
   const final = document.createElement("canvas");
   final.width=pxW; final.height=pxH;
-
   final.getContext("2d").drawImage(canvas,0,0,pxW,pxH);
+  return final;
+}
 
+g("download").onclick = async ()=>{
+  const canvas = await renderCardToCanvas(g("card"));
   const a=document.createElement("a");
-  a.href=final.toDataURL("image/png");
+  a.href=canvas.toDataURL("image/png");
   a.download="idcard_landscape.png";
   a.click();
 };
 
+// CSV batch → ZIP PNG
+g("batch").onclick = async ()=>{
+  const file = g("csv").files[0];
+  if(!file){ alert("Pilih file CSV dulu."); return; }
+  const text = await file.text();
+  const rows = text.trim().split(/\r?\n/);
+  const header = rows.shift().split(",").map(h=>h.trim().toLowerCase());
+  const required = ["nim","nama","jurusan","dob","upbjj","mri","berlaku","qrlink"];
+  const missing = required.filter(r=>!header.includes(r));
+  if(missing.length){ alert("Header kurang: "+missing.join(", ")); return; }
+
+  const zip = new JSZip();
+  for(const line of rows){
+    if(!line.trim()) continue;
+    const cols = line.split(",").map(c=>c.trim());
+    const row = Object.fromEntries(header.map((h,i)=>[h, cols[i] || ""]));
+
+    updateCard(row);
+
+    // foto optional dataURL kolom fotoDataUrl
+    if(row.fotodataurl){
+      g("imgFoto").src = row.fotodataurl;
+    } else {
+      g("imgFoto").src = fallbackPhoto;
+    }
+
+    const canvas = await renderCardToCanvas(g("card"));
+    const data = canvas.toDataURL("image/png").split(",")[1];
+    zip.file(`${row.nim || "card"}.png`, data, {base64:true});
+  }
+  const blob = await zip.generateAsync({type:"blob"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "idcards.zip";
+  a.click();
+};
 </script>
 </body>
 </html>
