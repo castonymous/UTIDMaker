@@ -13,9 +13,10 @@
 
 <style>
   :root{
-    --card-w: 320px;   /* preview size, stabil di mobile */
-    --card-h: 204px;
-    --card-w-mm:88;    /* untuk hitung PNG 300dpi */
+    --card-w: 360px;                /* preview width */
+    --ratio: 0.63636;               /* 56/88 */
+    --card-h: calc(var(--card-w)*var(--ratio));
+    --card-w-mm:88;                 /* untuk export 300dpi */
     --card-h-mm:56;
     --glass-bg: rgba(255,255,255,0.38);
     --glass-border: rgba(255,255,255,0.65);
@@ -96,95 +97,115 @@
     box-shadow:var(--shadow-soft);
     display:flex;
     justify-content:center;
-    width:420px;
+    width:440px;
     max-width:96vw;
     order:2;
   }
 
-  /* LANDSCAPE CARD */
+  /* CARD */
   .id-card{
     width: var(--card-w);
     height: var(--card-h);
-    background:linear-gradient(145deg, rgba(255,255,255,0.48), rgba(255,255,255,0.2));
+    background:linear-gradient(150deg, rgba(255,255,255,0.75), rgba(230,237,245,0.6) 40%, rgba(197,215,238,0.55));
     backdrop-filter:blur(20px) saturate(180%);
-    border-radius:16px;
+    border-radius:18px;
     border:1px solid rgba(255,255,255,0.65);
     box-shadow:
       inset 0 0 0 1px rgba(255,255,255,0.35),
       var(--shadow-strong);
     position:relative;
     overflow:hidden;
-    padding:8mm;
-    box-sizing:border-box;
+    padding:16px 18px;
   }
 
-  /* Decorative light streak */
+  /* Decorative streak */
   .id-card::before{
     content:"";
     position:absolute;
-    width:120%;
-    height:120%;
-    top:-30%;
-    left:-20%;
-    background:radial-gradient(ellipse at top left, rgba(255,255,255,0.42), transparent 50%),
-               radial-gradient(ellipse at bottom right, rgba(10,132,255,0.12), transparent 45%);
+    width:140%;
+    height:140%;
+    top:-35%;
+    left:-25%;
+    background:
+      radial-gradient(ellipse at 25% 20%, rgba(255,255,255,0.65), transparent 50%),
+      radial-gradient(ellipse at 85% 80%, rgba(10,132,255,0.18), transparent 52%);
     transform:rotate(-4deg);
     pointer-events:none;
   }
 
-  /* ELEMENTS */
+  .card-grid{
+    position:relative;
+    z-index:2;
+    display:grid;
+    grid-template-columns: 1.1fr 1fr;
+    grid-template-rows: auto auto 1fr;
+    grid-template-areas:
+      "logo title"
+      "qr   photo"
+      "info photo";
+    column-gap:14px;
+    row-gap:10px;
+    height:100%;
+  }
+
+  .logo-wrap{grid-area:logo; align-self:start;}
   .logo{
-    width:12mm;
-    position:absolute;
-    left:8mm; top:6mm;
-    filter:drop-shadow(0 2px 4px rgba(0,0,0,0.15));
+    width:46px;
+    height:auto;
+    filter:drop-shadow(0 2px 4px rgba(0,0,0,0.12));
   }
 
   .title{
-    position:absolute;
-    top:7mm; left:23mm;
-    font-weight:700;
-    font-size:11pt;
-    letter-spacing:0.4px;
+    grid-area:title;
+    justify-self:center;
+    align-self:start;
+    font-weight:800;
+    font-size:18px;
+    letter-spacing:0.3px;
+    margin-top:2px;
   }
 
   .photo{
-    position:absolute;
-    right:8mm; top:10mm;
-    width:20mm; height:26mm;
-    border-radius:8px;
+    grid-area:photo;
+    justify-self:end;
+    align-self:start;
+    width:140px;
+    height:185px;
+    border-radius:14px;
     overflow:hidden;
-    background:rgba(255,255,255,0.45);
-    box-shadow:0 8px 22px rgba(0,0,0,0.2);
-    border:1px solid rgba(255,255,255,0.6);
+    background:rgba(255,255,255,0.55);
+    box-shadow:0 10px 26px rgba(0,0,0,0.2);
+    border:1px solid rgba(255,255,255,0.7);
   }
-  .photo img{width:100%;height:100%;object-fit:cover}
+  .photo img{width:100%;height:100%;object-fit:cover;}
 
   .qrbox{
-    position:absolute;
-    left:8mm; top:20mm;
-    width:20mm; height:20mm;
-    background:rgba(255,255,255,0.35);
-    border-radius:6px;
+    grid-area:qr;
+    width:150px;
+    height:150px;
+    background:rgba(255,255,255,0.5);
+    border-radius:12px;
     display:flex;
     align-items:center;
     justify-content:center;
     overflow:hidden;
+    box-shadow:0 8px 18px rgba(0,0,0,0.16);
   }
-  .qrbox canvas{width:100% !important; height:100% !important;}
+  .qrbox canvas{width:100% !important;height:100% !important;}
 
   .info{
-    position:absolute;
-    left:30mm; top:20mm;
-    font-size:8.5pt;
-    color:#1a1a1a;
+    grid-area:info;
+    align-self:start;
+    font-size:13px;
+    color:#222;
+    line-height:1.35;
   }
+  .field{margin-bottom:4px;}
+  .label{font-size:11px;color:#555;}
+  .value{font-weight:800;font-size:15px;}
+  .value.big{font-size:17px;}
 
-  .field{margin-bottom:2px}
-  .label{font-size:7pt;color:#555}
-  .value{font-weight:700}
-
-  /* Responsive: mobile stack */
+  /* Responsive */
   @media (max-width:768px){
     body{
       flex-direction:column;
@@ -241,33 +262,35 @@
 <!-- PREVIEW -->
 <div class="preview-wrap">
   <div id="card" class="id-card">
+    <div class="card-grid">
+      <div class="logo-wrap">
+        <img class="logo" id="logo"
+          crossOrigin="anonymous"
+          src="https://upload.wikimedia.org/wikipedia/commons/5/5f/Universitas_Terbuka_%28UT%29_logo.svg"
+          alt="Logo UT">
+      </div>
 
-    <img class="logo"
-      src="https://upload.wikimedia.org/wikipedia/commons/5/5f/Universitas_Terbuka_%28UT%29_logo.svg"
-      alt="Logo UT">
+      <div class="title">KARTU MAHASISWA</div>
 
-    <div class="title">KARTU MAHASISWA</div>
+      <div class="qrbox" id="qr"></div>
 
-    <div class="photo"><img id="imgFoto" alt="Foto"></div>
+      <div class="photo"><img id="imgFoto" alt="Foto"></div>
 
-    <div class="qrbox" id="qr"></div>
-
-    <div class="info">
-      <div class="field"><div class="label">NIM</div><div class="value" id="v-nim"></div></div>
-      <div class="field"><div class="label">Nama</div><div class="value" id="v-nama"></div></div>
-      <div class="field"><div class="label">Jurusan</div><div class="value" id="v-jurusan"></div></div>
-      <div class="field"><div class="label">Tanggal Lahir</div><div class="value" id="v-dob"></div></div>
-      <div class="field"><div class="label">UPBJJ</div><div class="value" id="v-upbjj"></div></div>
-      <div class="field"><div class="label">MRI</div><div class="value" id="v-mri"></div></div>
-      <div class="field"><div class="label">Berlaku</div><div class="value" id="v-berlaku"></div></div>
+      <div class="info">
+        <div class="field"><div class="label">NIM</div><div class="value" id="v-nim"></div></div>
+        <div class="field"><div class="label">Nama</div><div class="value big" id="v-nama"></div></div>
+        <div class="field"><div class="label">Jurusan</div><div class="value big" id="v-jurusan"></div></div>
+        <div class="field"><div class="label">Tanggal Lahir</div><div class="value" id="v-dob"></div></div>
+        <div class="field"><div class="label">UPBJJ</div><div class="value" id="v-upbjj"></div></div>
+        <div class="field"><div class="label">MRI</div><div class="value" id="v-mri"></div></div>
+        <div class="field"><div class="label">Berlaku</div><div class="value" id="v-berlaku"></div></div>
+      </div>
     </div>
-
   </div>
 </div>
 
 <script>
 const g = id => document.getElementById(id);
-const fields = ["nim","nama","jurusan","dob","upbjj","mri","berlaku","qrlink"];
 const fallbackPhoto = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAKxJREFUeNrs0rENgDAMQ9H//8uqoS0JBHhK2vWdjOS4PSJVpazBAYJCAgICAgICAgICAvwFVLtZL1NVr7DiIP9N6AAi/CYQgQYKBCBAgQIAAAQIECBAgQIAAAQIECBAgQOCnQM2vHGWk+y3OCAXoBx7E9kq+VJWlsYAAAAAElFTkSuQmCC";
 
 function updateCard(dataOverrides={}){
@@ -285,8 +308,8 @@ function updateCard(dataOverrides={}){
   g("qr").innerHTML = "";
   new QRCode(g("qr"), {
     text: val("qrlink") || "",
-    width: 120,
-    height: 120
+    width: 180,
+    height: 180
   });
 }
 
@@ -304,7 +327,7 @@ g("foto").onchange = e=>{
 
 g("update").onclick = ()=>updateCard();
 
-// DOWNLOAD LANDSCAPE PNG
+// Render helper
 async function renderCardToCanvas(target){
   const dpi = 300;
   const pxW = Math.round(88 * dpi / 25.4);
@@ -315,7 +338,8 @@ async function renderCardToCanvas(target){
 
   const canvas = await html2canvas(target,{
     scale:scale,
-    backgroundColor:null
+    backgroundColor:null,
+    useCORS:true
   });
 
   const final = document.createElement("canvas");
@@ -351,7 +375,6 @@ g("batch").onclick = async ()=>{
 
     updateCard(row);
 
-    // foto optional dataURL kolom fotoDataUrl
     if(row.fotodataurl){
       g("imgFoto").src = row.fotodataurl;
     } else {
