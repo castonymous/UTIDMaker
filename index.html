@@ -4,64 +4,147 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 
-<title>ID Card UT – Liquid Glass + CSV Mass Export</title>
+<title>ID Card Landscape Liquid Glass</title>
 
-<!-- Libraries -->
+<!-- Libs -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
 <style>
+  :root{
+    --card-w-mm:88;
+    --card-h-mm:56;
+  }
+
   body{
     margin:20px;
-    font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial;
-    display:flex; gap:24px;
+    font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto;
     background:#e5e7eb;
+    display:flex;
+    gap:20px;
+    flex-wrap:wrap;
   }
 
+  /* PANEL INPUT */
   .panel{
-    width:360px; background:white; padding:16px;
-    border-radius:14px; box-shadow:0 10px 30px rgba(0,0,0,0.1);
+    width:360px;
+    background:rgba(255,255,255,0.55);
+    backdrop-filter:blur(22px) saturate(180%);
+    border-radius:18px;
+    padding:18px;
+    border:1px solid rgba(255,255,255,0.5);
+    box-shadow:0 12px 30px rgba(0,0,0,0.15);
   }
-  label{display:block;font-size:13px;margin-top:10px}
-  input{width:100%;padding:8px;margin-top:6px;border-radius:8px;border:1px solid #ccc}
+
+  label{display:block;margin-top:12px;font-size:13px}
+  input{width:100%;padding:8px;margin-top:6px;border-radius:10px;border:1px solid #ccc}
+
   button{
-    margin-top:14px;padding:10px 16px;border:0;border-radius:10px;
-    background:#0A84FF;color:white;font-size:14px;cursor:pointer;
+    margin-top:14px;
+    padding:10px 16px;
+    border:0;
+    border-radius:12px;
+    background:#0A84FF;
+    color:white;
+    cursor:pointer;
+    font-size:14px;
+    box-shadow:0 6px 18px rgba(10,132,255,0.4);
   }
 
-  .preview-wrap{background:white; padding:10px; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,0.1)}
-  .rotate{transform:rotate(90deg); transform-origin:center}
+  /* PREVIEW AREA */
+  .preview-wrap{
+    padding:12px;
+    background:rgba(255,255,255,0.3);
+    backdrop-filter:blur(20px);
+    border-radius:18px;
+    border:1px solid rgba(255,255,255,0.5);
+    box-shadow:0 12px 32px rgba(0,0,0,0.15);
+  }
 
-  /* ID card */
+  /* LANDSCAPE CARD 88×56 mm */
   .id-card{
-    width:56mm;
-    height:88mm;
+    width: calc(var(--card-w-mm) * 0.264583mm);
+    height: calc(var(--card-h-mm) * 0.264583mm);
+
     background:rgba(255,255,255,0.25);
-    backdrop-filter:blur(16px);
+    backdrop-filter:blur(20px) saturate(180%);
     border-radius:14px;
     border:1px solid rgba(255,255,255,0.6);
-    padding:10mm; box-sizing:border-box;
+    box-shadow:
+      inset 0 0 0 1px rgba(255,255,255,0.4),
+      0 12px 30px rgba(0,0,0,0.14);
+
     position:relative;
     overflow:hidden;
+    padding:8mm;
+    box-sizing:border-box;
   }
 
-  .logo{position:absolute; left:10mm; top:10mm; width:14mm;}
-  .title{position:absolute; left:26mm; top:11mm; font-weight:600; font-size:12pt}
-  .photo{position:absolute; right:10mm; top:20mm; width:24mm; height:32mm; border-radius:8px; overflow:hidden}
+  /* ELEMENTS */
+  .logo{
+    width:12mm;
+    position:absolute;
+    left:8mm; top:6mm;
+  }
+
+  .title{
+    position:absolute;
+    top:7mm; left:23mm;
+    font-weight:600;
+    font-size:10.5pt;
+  }
+
+  .photo{
+    position:absolute;
+    right:8mm; top:10mm;
+    width:20mm; height:26mm;
+    border-radius:8px;
+    overflow:hidden;
+    background:rgba(255,255,255,0.3);
+    box-shadow:0 6px 18px rgba(0,0,0,0.15);
+  }
   .photo img{width:100%;height:100%;object-fit:cover}
 
-  .qrbox{position:absolute; left:10mm; top:28mm; width:24mm; height:24mm}
-  .info{position:absolute; left:38mm; top:28mm; font-size:9pt}
-  .field{margin-bottom:4px}
-  .label{font-size:7pt;color:#777}
+  .qrbox{
+    position:absolute;
+    left:8mm; top:20mm;
+    width:20mm; height:20mm;
+  }
+
+  .info{
+    position:absolute;
+    left:30mm; top:20mm;
+    font-size:8.5pt;
+  }
+
+  .field{margin-bottom:2px}
+  .label{font-size:7pt;color:#666}
   .value{font-weight:600}
+
+  /* RESPONSIVE: MOBILE → stack vertically */
+  @media (max-width:768px){
+    body{
+      flex-direction:column;
+      align-items:center;
+    }
+    .panel{
+      width:90%;
+    }
+    .preview-wrap{
+      margin-top:20px;
+      width:95%;
+      display:flex;
+      justify-content:center;
+    }
+  }
+
 </style>
 </head>
 <body>
 
+<!-- PANEL INPUT -->
 <div class="panel">
-
   <h3>Input Data</h3>
 
   <label>NIM</label><input id="nim" value="056130911">
@@ -78,168 +161,102 @@
 
   <label>Berlaku</label><input id="berlaku" value="24-06-2025">
 
-  <label>Link untuk QR</label><input id="qrlink" value="https://example.com/profile/056130911">
+  <label>Link QR</label><input id="qrlink" value="https://example.com/profile/056130911">
 
-  <label>Pas Foto</label>
+  <label>Foto</label>
   <input id="foto" type="file" accept="image/*">
 
   <button id="update">Update Preview</button>
-  <button id="download">Download PNG Portrait</button>
-
-  <hr style="margin:20px 0">
-
-  <h3>Mass Import CSV</h3>
-  <input id="csv" type="file" accept=".csv">
-
-  <button id="gen-bulk">Generate Massal (ZIP)</button>
+  <button id="download">Download PNG Landscape</button>
 </div>
 
+<!-- PREVIEW -->
 <div class="preview-wrap">
-  <div class="rotate">
-    <div id="card" class="id-card">
-      <img class="logo" src="https://upload.wikimedia.org/wikipedia/commons/5/5f/Universitas_Terbuka_%28UT%29_logo.svg">
+  <div id="card" class="id-card">
 
-      <div class="title">KARTU MAHASISWA</div>
+    <img class="logo"
+      src="https://upload.wikimedia.org/wikipedia/commons/5/5f/Universitas_Terbuka_%28UT%29_logo.svg">
 
-      <div class="photo"><img id="imgFoto"></div>
-      <div class="qrbox" id="qr"></div>
+    <div class="title">KARTU MAHASISWA</div>
 
-      <div class="info">
-        <div class="field"><div class="label">NIM</div><div class="value" id="v-nim"></div></div>
-        <div class="field"><div class="label">Nama</div><div class="value" id="v-nama"></div></div>
-        <div class="field"><div class="label">Jurusan</div><div class="value" id="v-jurusan"></div></div>
-        <div class="field"><div class="label">Tanggal Lahir</div><div class="value" id="v-dob"></div></div>
-        <div class="field"><div class="label">UPBJJ</div><div class="value" id="v-upbjj"></div></div>
-        <div class="field"><div class="label">MRI</div><div class="value" id="v-mri"></div></div>
-        <div class="field"><div class="label">Berlaku</div><div class="value" id="v-berlaku"></div></div>
-      </div>
+    <div class="photo"><img id="imgFoto"></div>
+
+    <div class="qrbox" id="qr"></div>
+
+    <div class="info">
+      <div class="field"><div class="label">NIM</div><div class="value" id="v-nim"></div></div>
+      <div class="field"><div class="label">Nama</div><div class="value" id="v-nama"></div></div>
+      <div class="field"><div class="label">Jurusan</div><div class="value" id="v-jurusan"></div></div>
+      <div class="field"><div class="label">Tanggal Lahir</div><div class="value" id="v-dob"></div></div>
+      <div class="field"><div class="label">UPBJJ</div><div class="value" id="v-upbjj"></div></div>
+      <div class="field"><div class="label">MRI</div><div class="value" id="v-mri"></div></div>
+      <div class="field"><div class="label">Berlaku</div><div class="value" id="v-berlaku"></div></div>
     </div>
+
   </div>
 </div>
 
 <script>
 
-function updateCard(data={}){
+// UPDATE CARD
+function updateCard() {
+  const g = id => document.getElementById(id).value;
 
-  const get = id => data[id] ?? document.getElementById(id).value;
-
-  document.getElementById("v-nim").textContent = get("nim");
-  document.getElementById("v-nama").textContent = get("nama");
-  document.getElementById("v-jurusan").textContent = get("jurusan");
-  document.getElementById("v-dob").textContent = get("dob");
-  document.getElementById("v-upbjj").textContent = get("upbjj");
-  document.getElementById("v-mri").textContent = get("mri");
-  document.getElementById("v-berlaku").textContent = get("berlaku");
+  document.getElementById("v-nim").textContent = g("nim");
+  document.getElementById("v-nama").textContent = g("nama");
+  document.getElementById("v-jurusan").textContent = g("jurusan");
+  document.getElementById("v-dob").textContent = g("dob");
+  document.getElementById("v-upbjj").textContent = g("upbjj");
+  document.getElementById("v-mri").textContent = g("mri");
+  document.getElementById("v-berlaku").textContent = g("berlaku");
 
   // QR
   document.getElementById("qr").innerHTML = "";
   new QRCode(document.getElementById("qr"), {
-    text: get("qrlink"),
-    width: 160,
-    height: 160
+    text: g("qrlink"),
+    width: 120,
+    height: 120
   });
-
-  // FOTO
-  if(data.fotoBase64){
-    document.getElementById("imgFoto").src = data.fotoBase64;
-  }
 }
 
-document.getElementById("foto").addEventListener("change", e=>{
+updateCard();
+
+// FOTO
+document.getElementById("foto").onchange = e=>{
   const f = e.target.files[0];
   if(!f) return;
   const r = new FileReader();
   r.onload = ev => document.getElementById("imgFoto").src = ev.target.result;
   r.readAsDataURL(f);
-});
+};
 
-document.getElementById("update").onclick = ()=>updateCard();
-
-updateCard();
+document.getElementById("update").onclick = updateCard;
 
 
-// EXPORT PORTRAIT PNG
+// DOWNLOAD LANDSCAPE PNG
 document.getElementById("download").onclick = async ()=>{
-
   const card = document.getElementById("card");
 
   const dpi = 300;
-  const pxW = Math.round(56 * dpi / 25.4);
-  const pxH = Math.round(88 * dpi / 25.4);
+  const pxW = Math.round(88 * dpi / 25.4);
+  const pxH = Math.round(56 * dpi / 25.4);
 
   const rect = card.getBoundingClientRect();
   const scale = pxH / rect.height;
 
-  const canvas = await html2canvas(card, {
-    scale:scale, backgroundColor:null
+  const canvas = await html2canvas(card,{
+    scale:scale,
+    backgroundColor:null
   });
 
   const final = document.createElement("canvas");
-  final.width = pxW;
-  final.height = pxH;
-  final.getContext("2d").drawImage(canvas, 0, 0, pxW, pxH);
+  final.width=pxW; final.height=pxH;
+
+  final.getContext("2d").drawImage(canvas,0,0,pxW,pxH);
 
   const a=document.createElement("a");
   a.href=final.toDataURL("image/png");
-  a.download="idcard.png";
-  a.click();
-};
-
-
-// MASS GENERATION
-document.getElementById("gen-bulk").onclick = async ()=>{
-  const file = document.getElementById("csv").files[0];
-  if(!file){ alert("Upload CSV dulu bro!"); return; }
-
-  const text = await file.text();
-  const rows = text.split("\n").map(r=>r.split(",").map(s=>s.trim()));
-
-  const headers = rows.shift();
-  const zip = new JSZip();
-
-  for(const row of rows){
-    if(row.length < 8) continue;
-
-    const obj = {};
-    headers.forEach((h,i)=>obj[h]=row[i]);
-
-    // Foto optional
-    let fotoB64 = null;
-    if(obj.foto){
-      // diasumsikan foto adalah URL
-      const img = await fetch(obj.foto).then(r=>r.blob());
-      fotoB64 = await new Promise(res=>{
-        const fr=new FileReader(); fr.onload=e=>res(e.target.result); fr.readAsDataURL(img);
-      });
-    }
-
-    updateCard({
-      ...obj,
-      fotoBase64: fotoB64
-    });
-
-    const card = document.getElementById("card");
-
-    const dpi = 300;
-    const pxW = Math.round(56 * dpi / 25.4);
-    const pxH = Math.round(88 * dpi / 25.4);
-    const s = pxH / card.getBoundingClientRect().height;
-
-    const canvas = await html2canvas(card,{scale:s,backgroundColor:null});
-
-    const final = document.createElement("canvas");
-    final.width=pxW; final.height=pxH;
-    final.getContext("2d").drawImage(canvas,0,0,pxW,pxH);
-
-    const b64 = final.toDataURL("image/png").split(",")[1];
-
-    zip.file(`${obj.nim}.png`, b64, {base64:true});
-  }
-
-  const blob = await zip.generateAsync({type:"blob"});
-  const a = document.createElement("a");
-  a.href=URL.createObjectURL(blob);
-  a.download="idcard_massal.zip";
+  a.download="idcard_landscape.png";
   a.click();
 };
 
