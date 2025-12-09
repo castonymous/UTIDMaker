@@ -14,8 +14,8 @@ UT ID Maker adalah aplikasi web sederhana untuk membuat dan mencetak kartu mahas
 
 - Mengisi data mahasiswa (NIM, Nama, Jurusan, dll)
 - Mengunggah foto
-- Generate QR Code otomatis berdasarkan NIM
-- Download kartu dalam format PNG dengan resolusi tinggi (300 DPI)
+- Menggenerate QR Code otomatis berdasarkan NIM
+- Mengunduh kartu dalam format PNG dengan resolusi tinggi (300 DPI)
 - Mencetak kartu dengan ukuran standar 56 × 88 mm
 
 ## 🚀 Cara Penggunaan
@@ -29,9 +29,9 @@ UT ID Maker adalah aplikasi web sederhana untuk membuat dan mencetak kartu mahas
    - UPBJJ (Unit Program Belajar Jarak Jauh)
    - MRI (Masa Registrasi Akhir)
    - Berlaku sampai
-3. Upload foto mahasiswa
+3. Unggah foto mahasiswa
 4. Klik "Update Preview" untuk melihat hasil
-5. Klik "Download PNG" untuk mengunduh kartu
+5. Klik "Unduh PNG" untuk mengunduh kartu
 
 ## 🖨️ Tips Mencetak
 
